@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <style>
+        /* CSS */
+        #main-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #main-heading {
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            font-size: 2em;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #content {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+        }
+
+        #content.visible {
+            opacity: 1;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <h1 id="main-heading">Main Heading</h1>
+        <nav>
+            <ul>
+                <li><a href="page1.html" class="nav-link" data-heading="Page 1 Heading">Page 1</a></li>
+                <li><a href="page2.html" class="nav-link" data-heading="Page 2 Heading">Page 2</a></li>
+                <li><a href="page3.html" class="nav-link" data-heading="Page 3 Heading">Page 3</a></li>
+                <li><a href="page4.html" class="nav-link" data-heading="Page 4 Heading">Page 4</a></li>
+                <li><a href="page5.html" class="nav-link" data-heading="Page 5 Heading">Page 5</a></li>
+            </ul>
+        </nav>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        // JavaScript
+        document.addEventListener("DOMContentLoaded", function() {
+            const links = document.querySelectorAll(".nav-link");
+            const mainHeading = document.getElementById("main-heading");
+            const contentDiv = document.getElementById("content");
+
+            links.forEach(link => {
+                link.addEventListener("click", function(event) {
+                    event.preventDefault();
+
+                    const url = this.getAttribute("href");
+                    const newHeadingText = this.getAttribute("data-heading");
+
+                    // Animate heading out
+                    mainHeading.style.transform = "translateY(-20px)";
+                    mainHeading.style.opacity = "0";
+
+                    // Fade out the content during the transition
+                    contentDiv.classList.remove('visible');
+
+                    setTimeout(() => {
+                        // Load the new content
+                        fetch(url)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.text();
+                            })
+                            .then(data => {
+                                contentDiv.innerHTML = data;
+
+                                // Change the heading text
+                                mainHeading.textContent = newHeadingText;
+
+                                // Animate heading and content in
+                                mainHeading.style.transform = "translateY(0)";
+                                mainHeading.style.opacity = "1";
+
+                                contentDiv.classList.add('visible');
+                            })
+                            .catch(error => {
+                                console.error('Error loading the page:', error);
+                                contentDiv.innerHTML = '<p>Error loading the page. Please try again later.</p>';
+                                contentDiv.classList.add('visible');
+                            });
+                    }, 500); // Match the duration of the CSS transition
+                });
+            });
+        });
+    </script>
+</body>
+</html>
